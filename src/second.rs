@@ -1,17 +1,17 @@
 use std::mem;
 
-pub struct List {
-    head: Link,
+pub struct List<T> {
+    head: Link<T>,
 }
 
-type Link = Option<Box<Node>>;
+type Link<T> = Option<Box<Node<T>>>;
 
-struct Node {
+struct Node<T> {
     elem: i32,
-    next: Link,
+    next: Link<T>,
 }
 
-impl List {
+impl List<T> {
     pub fn new() -> Self {
         List { head: None }
     }
@@ -32,7 +32,7 @@ impl List {
     }
 }
 
-impl Drop for List {
+impl Drop for List<T> {
     fn drop(&mut self) {
         let mut cur_link = mem::replace(&mut self.head, None);
         // `while let` == "do this thing until this pattern doesn't match"
