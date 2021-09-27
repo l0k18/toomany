@@ -100,7 +100,7 @@ mod test {
         list.push(3);
         assert_eq!(list.peek(), Some(&3));
         assert_eq!(list.peek_mut(), Some(&mut 3));
-        list.peek_mut().map(|&mut value| {
+        list.peek_mut().map(|value| {
             *value = 42
         });
 
