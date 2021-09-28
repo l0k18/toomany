@@ -26,6 +26,8 @@ impl<T> Node<T> {
     }
 }
 
+pub struct Iter<'a, T>(Option<Ref<'a, Node<T>>>);
+
 impl<T> List<T> {
     pub fn new() -> Self {
         List { head: None, tail: None }
@@ -128,6 +130,10 @@ impl<T> List<T> {
     pub fn into_iter(self) -> IntoIter<T> {
         IntoIter(self)
     }
+
+    pub fn iter(&self) -> Iter<T> {
+        Iter(self.head.as_ref().map(|head| head.borrow()))
+    }
 }
 
 impl<T> Drop for List<T> {
@@ -146,6 +152,25 @@ impl<T> Iterator for IntoIter<T> {
 impl<T> DoubleEndedIterator for IntoIter<T> {
     fn next_back(&mut self) -> Option<T> {
         self.0.pop_back()
+    }
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = Ref<'a, T>;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.0.take().map(|node_ref| {
+            let (next, elem) = Ref::map_split(node_ref, |node| {
+                (&node.next, &node.elem)
+            });
+
+            self.0 = if next.is_some() {
+                Some(Ref::map(next, |next| &**next.as_ref().unwrap()))
+            } else {
+                None
+            };
+
+            elem
+        })
     }
 }
 
